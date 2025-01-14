@@ -3,99 +3,44 @@ import JWT from 'jsonwebtoken';
 import Role from '../models/Role';
 import CryptoJS from 'crypto-js';
 
-//funcion para Iniciar Sesion 
+/**@funcion para Iniciar Sesion*/
 export const signIn = async (req, res) => {
-	const userFound =  await User.findOne({email: req.body.email}).populate("roles");
+	const userFound =  await User.findOne({
+		email: req.body.email
+	}).populate("roles");
 	if (!userFound){
 		return res.status(400).json({
 		message: "El usuario no existe"});
-		}
-
-	//comparamos el password de la db con el password del usuario que se quiere loguear
-	const matchPassword = await User.comparePassword(req.body.password, userFound.password);
+	}
+	const matchPassword = await User.comparePassword(
+		req.body.password, userFound.password
+	);
 	if (!matchPassword){
 		return res.status(401).json({
 		token: null, 
 		message: "La contraseña es incorrecta"});
-		}	
-
-		//convertimos a string el array de roles y extraemos el name de cada rol
-		const rolesAsString = Array.isArray(userFound.roles)
-		? userFound.roles.map((role) => role.name).join(', ') // Si es un array de roles
-		: userFound.roles.name; // Si es un único objeto de rol
-		  
-		const token = JWT.sign({id: userFound._id}, process.env.JWT_SECRET_KEY, {
-		expiresIn: 86400 // el token expirara 24 horas
+	}
+	const rolesAsString = Array.isArray(userFound.roles)
+	? userFound.roles.map((role) => role.name).join(', ')
+	: userFound.roles.name;
+	const token = JWT.sign({id: userFound._id}, 
+	process.env.JWT_SECRET_KEY, {
+	expiresIn: 86400 // el token expirara 24 horas
 	})
 	res.json({
-	message: 'Su sesión se ha iniciado correctamente',
+		message: 'Su sesión se ha iniciado correctamente',
 		user: {
 		id: userFound._id,
 		username: userFound.username,
 		email: userFound.email,
 		roles: 	rolesAsString,
 		imgURL: userFound.imgURL
-      },
+    },
 	  token,
 	});
-	console.log(userFound);
 }
 
-//funcion para decifrar el email y la contraseña
-// const decryptData = (encryptedData, secretKey) => {
-//     const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey);
-//     return bytes.toString(CryptoJS.enc.Utf8);
-// };
-
-// export const signIn = async (req, res) => {
-//     try {
-//         const secretKey = "your-secret-key"; // Debe coincidir con la clave usada en el frontend para cifrar
-
-//         // Descifrar el email y la contraseña
-//         const email = decryptData(req.body.email, secretKey);
-//         const password = decryptData(req.body.password, secretKey);
-
-//         // Buscar el usuario por email y popular roles
-//         const userFound = await User.findOne({ email }).populate("roles");
-//         if (!userFound) {
-//             return res.status(400).json({
-//                 message: "El usuario no existe"
-//             });
-//         }
-
-//         // Comparar contraseñas (en el caso de que uses hashing para contraseñas, por ejemplo con bcrypt)
-//         const matchPassword = await User.comparePassword(password, userFound.password);
-//         if (!matchPassword) {
-//             return res.status(401).json({
-//                 token: null,
-//                 message: "La contraseña es incorrecta"
-//             });
-//         }
-
-//         // Crear el payload del token
-//         const payload = {
-//             id: userFound._id,
-//             username: userFound.username,
-//             email: userFound.email,
-//             roles: userFound.roles.map(role => role.name) // Asegúrate de mapear los roles a nombres si es necesario
-//         };
-
-//         // Generar el token con toda la información
-//         const token = JWT.sign(payload, process.env.JWT_SECRET_KEY, {
-//             expiresIn: 86400 // 24 horas
-//         });
-
-//         // Responder con el token
-//         res.json({ token });
-//         console.log(userFound);
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Error en el servidor" });
-//     }
-// };
-
-
-//funcion para obtener el perfil de un usuario cuando esta logueado
+/**@funcion para obtener el perfil del usuario*/
 export const getProfile = async (req, res) => {
 	const userProfile = await User.findOne({
 		_id: req.userId,
@@ -109,50 +54,49 @@ export const getProfile = async (req, res) => {
 	})  
 }	
 
-//funcion para Registrar a un usuario 
+/**@funcion para registrar un nuevo usuario*/
 export const signUp = async (req, res) => {
-	const { username, email, password, roles, imgURL } = req.body;
-  
-	// Crear un nuevo usuario con los datos básicos
-	const newUser = new User({
-	  username,
-	  email,
-	  password: await User.encryptPassword(password),
-	  imgURL,
-	});
-  
-	if (roles && roles.length > 0) {
-	  // Extraer los nombres de los roles si roles es un array de objetos
-	  const roleNames = roles.map((role) => (typeof role === "string" ? role : role.name));
-  
-	  // Buscar roles en la base de datos
-	  const foundRoles = await Role.find({ name: { $in: roleNames } });
-	  
-	  // Mapear los _id de los roles encontrados
-	  newUser.roles = foundRoles.map((role) => role._id);
-	} else {
-	  // Asignar rol por defecto
-	  const roleDefault = await Role.findOne({ name: "user" });
-	  newUser.roles = [roleDefault._id];
+	try {
+		const { username, email, password, roles, imgURL } = req.body;
+		const newUser = new User({
+		username,
+		email,
+		password: await User.encryptPassword(password),
+		imgURL,
+		});
+		if (roles && roles.length > 0) {
+		// Extraer los nombres de los roles si roles es un array de objetos
+		const roleNames = roles.map((role) => (
+			typeof role === "string" ? role : role.name
+		));
+		// Buscar roles en la base de datos
+		const foundRoles = await Role.find({
+			name: { $in: roleNames } });
+		// Mapear los _id de los roles encontrados
+		newUser.roles = foundRoles.map((role) => role._id);
+		} else {
+		// Asignar rol por defecto
+			const roleDefault = await Role.findOne({ name: "user" });
+			newUser.roles = [roleDefault._id];
+		}
+		// Guardar el usuario en la base de datos
+		const savedUser = await newUser.save();
+		// Crear un token de autenticación
+		const token = JWT.sign({ id: savedUser._id }, process.env.JWT_SECRET_KEY, {
+			expiresIn: 86400, // 24 horas
+		});
+		// Responder con el usuario guardado y el token
+		res.status(200).json({ user: savedUser });
+		console.log(savedUser);
+	} catch (error) {
+		console.error(error);	
 	}
-  
-	// Guardar el usuario en la base de datos
-	const savedUser = await newUser.save();
-  
-	// Crear un token de autenticación
-	const token = JWT.sign({ id: savedUser._id }, process.env.JWT_SECRET_KEY, {
-	  expiresIn: 86400, // 24 horas
-	});
-  
-	// Responder con el usuario guardado y el token
-	res.status(200).json({ user: savedUser });
-	console.log(savedUser);
+	
 };
   
 //funcion para obtener a todos los usuarios registrados
 export const getUsers = async (req, res) => {
 	try {
-		
 		const users = await User.find().populate("roles", "-__v");
 		res.status(200).json(users);
 	} catch (error) {
