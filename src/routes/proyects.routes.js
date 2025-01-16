@@ -5,7 +5,7 @@ import { createProyect,
 		getProyect,
 		getProyectById,
 		updateProyectById,
-		deleteProyectById } from "../controllers/proyects.controller";
+		deleteProyectById } from "../controllers/projects/proyects.controller";
 import {authJwtVerified,
 		isAdmin,
 		isModerator}  from "../middlewares/index";

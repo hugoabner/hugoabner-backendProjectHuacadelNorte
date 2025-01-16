@@ -5,7 +5,7 @@ import { deleteUser,
 	getUsers, 
 	signIn, 
 	signUp, 
-	updateUser} from '../controllers/auth.controller';
+	updateUser} from '../controllers/index';
 	
 import {authJwtVerified, 
 	requireAuth, 

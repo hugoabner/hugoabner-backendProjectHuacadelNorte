@@ -19,14 +19,12 @@ export { signIn,
 
 /**@import controllers @USERS */
 import {createUser,
-	getUsers,
 	getUser
 } from './users/user.controller.js';
 
 /**@export controllers @USERS */
 export {
 	createUser,
-	getUsers,
 	getUser
 }
 

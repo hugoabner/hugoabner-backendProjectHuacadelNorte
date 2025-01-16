@@ -1,6 +1,6 @@
-import User from '../models/User';
+import User from '../../models/User';
 import JWT from 'jsonwebtoken';
-import Role from '../models/Role';
+import Role from '../../models/Role';
 import CryptoJS from 'crypto-js';
 
 /**@funcion para Iniciar Sesion*/
