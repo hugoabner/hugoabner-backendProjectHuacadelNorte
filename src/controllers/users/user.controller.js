@@ -1,12 +1,11 @@
-import User from "../models/User";
-import Role from  "../models/Role";
+import User from "../../models/User";
+import Role from  "../../models/Role";
 
+/**@funcion para crear un nuevo usuario */
 export const createUser = async (req, res) => {
   try {
     const { username, email, password, roles, imgURL } = req.body;
-
     const rolesFound = await Role.find({ name: { $in: roles } });
-    // crear el nuevo usuario
     const user = new User({
       username,
       email,
@@ -14,12 +13,9 @@ export const createUser = async (req, res) => {
       imgURL,
       roles: rolesFound.map((role) => role._id ),
     });
-    //  ciframos la contraseña
     user.password = await User.encryptPassword(user.password);
-    // Guardamos al nuevo usario
     const savedUser = await user.save();
     console.log(savedUser);
-
     return res.status(200).json({
       _id: savedUser._id,
       username: savedUser.username,
@@ -29,18 +25,26 @@ export const createUser = async (req, res) => {
       imgURL: savedUser.imgURL
     });
   } catch (error) {
-    console.error(error);
+    console.error("Ocurrio un error al crear el usuario " + error);
   }
 };
 
-//funcion para Otener a todos los usuarios
+/**@funcion para Otener a todos los usuarios */
 export const getUsers = async (req, res) => {
-  const users = await User.find();
-  return res.json(users);
+  try {
+    const users = await User.find();
+    return res.json(users);
+  } catch (error) {
+    console.log("Ocurrio un error al obtener los usuarios " + error);
+  }
 };
 
-//funcion para obtener a un usuario por id
+/**@funcion para obtener a un usuario por id */ 
 export const getUser = async (req, res) => {
-  const user = await User.findById(req.params.userId);
-  return res.json(user);
+  try {
+    const user = await User.findById(req.params.userId);
+    return res.json(user);
+  } catch (error) {
+    console.log("Ocurrio un error al obtener el usuario " + error);
+  }
 };

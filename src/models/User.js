@@ -1,24 +1,28 @@
 import {Schema, model} from 'mongoose';
 import bcrypt from 'bcryptjs';
-// import Role from './Role.js';
 
 const userSchema = new Schema({
-    username: { type: String, required: true }, // Usa "username" en lugar de "usename"
+    username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String },
     roles: [{ ref: "Role", type: Schema.Types.ObjectId }],
-    imgURL: { type: String}, // Agregar el campo imgURL
+    imgURL: { type: String},
 }, { timestamps: true, versionKey: false });
 
 
-//cifrar la constraseña
+/**@funcion para cifrar la contraseña*/
 userSchema.statics.encryptPassword = async (password) => {
-	const salt = await bcrypt.genSalt(10) //creamos uns sal aleatorio de 10 rondas
-	return await bcrypt.hash(password, salt) //devuelve un hash de la contraseña cifrada
+    //creamos uns sal aleatorio de 10 rondas
+	const salt = await bcrypt.genSalt(10) 
+    //devuelve un hash de la contraseña cifrada
+	return await bcrypt.hash(password, salt) 
 }
-//comparar la contraseña
+
+
+/**@funcion para comparar la contraseña */
 userSchema.statics.comparePassword = async (password, receivedPassword) => {
-	return await bcrypt.compare(password, receivedPassword) //devuelve true si las contraseñas son iguales
+    //devuelve true si las contraseñas son iguales
+	return await bcrypt.compare(password, receivedPassword) 
 }
 
 export default model('User', userSchema);

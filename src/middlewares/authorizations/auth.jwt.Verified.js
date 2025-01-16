@@ -1,91 +1,90 @@
 import JWT from "jsonwebtoken";
 import User from "../../models/User";
 import Role from "../../models/Role";
-//funcion para verificar el token 
+
+
+/**@funcion para verificar el token */  
 export const authJwtVerified = async (req, res, next) => {
 	try {
-		const token = req.headers["x-access-token"]; //agregamos el token en el header para acceder a el
-		// console.log(token);
+		const token = req.headers["x-access-token"];
 		if (!token) {
-			return res.status(403).json({message: "No se ha proporcionado un token"});	
+			return res.status(403).json(
+				{message: "No se ha proporcionado un token"}
+			);	
 		}
-		//aqui decodificamos el token
-		const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY); //decodificamos el token con la llave secreta
+		const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
 		req.userId = decoded.id;
 		const user = await User.findById(req.userId, {password: 0}).populate("roles");
 		console.log(user);
 		if (!user) {
-			return res.status(404).json({message: "El usuario no ha sido encontrado"});		
+			return res.status(404).json(
+				{message: "El usuario no ha sido encontrado"}
+			);		
 		}
-	 	// console.log(decoded);
 		next();
-		
 	} catch (error) {
+		console.log("Ocurrio un error al verificar el token " + error);
 		return res.status(401).json({message: "No esta Autorizado"});
-		console.log("error en la funcion authJwtVerified " + error);
 	}
 }
 
-//creamos una funcion para verificar si el usuario es moderador
-//si no es moderador se devuelve un error 
-//si es moderador se pasa as siguiente funcion
+/**@Middleware para verificar si el usuario es moderador */
 export const isModerator = async (req, res, next) => {
 	try {
 	const user = await User.findById(req.userId)
 	const roles = await Role.find({_id: {$in: user.roles}})
-	
 	for (let i = 0; i < roles.length; i++) {
 		if (roles[i].name === "moderator") {
 			next();
 			return;
 		}
 	}
-	// return res.status(403).json({message: "Se requiere rol de moderador"})
-	// console.log(roles);	
 	} catch (error) {
 		console.log(error);
-		return res.status(401).json({message: "Se requiere rol de moderador"});
+		return res.status(401).json(
+			{message: "Se requiere rol de moderador"}
+		);
 	}
 }
 
-//funciones para verificar si existe el usuario y si es admin
+/**@Middleware para verificar si el usuario es admin */
 export const isAdmin = async (req, res, next) => {
 	try {
 		const user = await User.findById(req.userId)
 		const roles = await Role.find({_id: {$in: user.roles}})
-		
 		for (let i = 0; i < roles.length; i++) {
 			if (roles[i].name === "admin") {
 				next();
 				return;
 			}
 		}
-		//return res.status(403).json({message: "Se requiere rol de admin"})
 		console.log(roles);
 		console.log(user);
 	} catch (error) {
 		console.log(error);
-		return res.status(401).json({message: "Se requiere rol de admin"});
-		
+		return res.status(401).json(
+			{message: "Se requiere rol de admin"}
+		);
 	}
-	
 }
 
-
-
-//funcion para verificar si el usuario esta logueado y obtener su informacion 
+/**@Middleware para verificar el token */
 export const requireAuth = async (req, res, next) => {
 	if (req.headers.authorization) {
-		const token = req.headers.authorization.split(" ")[1];//el operador split se usa para separar el token de la palabra Bearer
+		const token = req.headers.authorization.split(" ")[1];
 		const decoded = JWT.verify(token, process.env.JWT_SECRET_KEY);
 		req.userId = decoded.id;
-		const user = await User.findById(req.userId, {password: 0}).populate("roles"); //obtenemos la informacion del usuario sin la contraseña
+		const user = await User.findById(req.userId, {password: 0}).populate("roles"); 
 		if (!user) {
-			return res.status(404).json({message: "El usuario no ha sido encontrado"});		
+			return res.status(404).json(
+				{message: "El usuario no ha sido encontrado"}
+			);		
 		}
 		next();
 	} else {
-		return res.status(401).json({message: "No esta Autorizado"});
+		return res.status(401).json(
+			{message: "No esta Autorizado"}
+		);
 	}
 }
 

@@ -1,20 +1,46 @@
 import { Router } from "express";
-import { deleteUser, getProfile, getUsers, signIn, signUp, updateUser} from '../controllers/auth.controller';
-//import { checkRolesExisted, checkDuplicateUserNameOrEmail} from "../middlewares/index";
-import { authJwtVerified, requireAuth, isAdmin } from "../middlewares/authorizations/auth.jwt.Verified";
+
+import { deleteUser, 
+	getProfile, 
+	getUsers, 
+	signIn, 
+	signUp, 
+	updateUser} from '../controllers/auth.controller';
+	
+import {authJwtVerified, 
+	requireAuth, 
+	isAdmin} from '../middlewares/index'; 
 
 const router = Router()
 
-//[checkRolesExisted, checkDuplicateUserNameOrEmail]
-router.post('/signIn',  signIn ); //finalizado
-router.get('/profile', requireAuth,  getProfile)
+/**@Route para iniciar sesion */
+router.post('/signIn',  
+	signIn);
 
+/**@Route para obtener el perfil */
+router.get('/profile', 
+	requireAuth,  
+	getProfile)
 
-/* Crud de usuarios registrados */
-router.post('/signUp', [authJwtVerified, isAdmin], signUp ); //crear user
-router.get('/userRegisters', [authJwtVerified, isAdmin], getUsers ); //obtener users
-router.delete('/deleteUser/:userId', [authJwtVerified, isAdmin], deleteUser);//eliminar user
-router.put('/updateUser/:userId', [authJwtVerified, isAdmin], updateUser);//actualizar user
+/**@Route para registrar un usuario */
+router.post('/signUp', 
+	[authJwtVerified, isAdmin], 
+	signUp );
+
+/**@Route para usuarios registrados */
+router.get('/userRegisters', 
+	[authJwtVerified, isAdmin], 
+	getUsers );
+
+/**@Route para eliminar un usuario */
+router.delete('/deleteUser/:userId', 
+	[authJwtVerified, isAdmin], 
+	deleteUser);
+
+/**@Route para actualizar un usuario */
+router.put('/updateUser/:userId', 
+	[authJwtVerified, isAdmin], 
+	updateUser);
 
 
 export default router;

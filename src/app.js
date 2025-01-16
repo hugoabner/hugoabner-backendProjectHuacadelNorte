@@ -5,7 +5,6 @@ import pkg from '../package.json';
 import proyectRoutes from './routes/proyects.routes';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
-
 import { createRoles } from './libs/initialsSetup';
 
 const app = express();
@@ -13,18 +12,16 @@ createRoles();
 
 app.set('pkg', pkg);
 
-// Middlewares
+/**@Configuracion de cors */
 app.use(cors({
-origin: '*', // Asegúrate de que coincide con tu frontend
-
-credentials: true,
-
+  origin: '*', credentials: true,
 }));
 
+/**@Configuracion de morgan */  
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Ruta inicial para información del servidor
+/**@Metodo inicial para información del servidor */ 
 app.get('/', (req, res) => {
   res.json({
     name: app.get('pkg').name,
@@ -34,7 +31,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rutas
+/**@Metodos para las rutas */
 app.use('/proyect', proyectRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
