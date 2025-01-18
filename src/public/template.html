@@ -1,0 +1,284 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Usuarios</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Tipo de Documento</th>
+                <th>Número de Documento</th>
+                <th>Número de Verificación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{customer.personalInformation.name}}</td>
+                <td>{{customer.personalInformation.lastName}}</td>
+                <td>{{customer.identificationDocument.documentType}}</td>
+                <td>{{customer.identificationDocument.documentNumber}}</td>
+                <td>{{customer.identificationDocument.verificationNumber}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte PDF</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: small;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header, footer {
+            background-color: #34837C;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+        }
+        main {
+            padding: 20px;
+        }
+        h1, h3, h4 {
+            text-align: center;
+            color: #34837C;
+            padding: 0;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 3px;
+            text-align: center;
+        }
+        th {
+            background-color: #34837C;
+            color: #fff;
+            font-weight: bold;
+        }
+        td {
+            background-color: #f9f9f9;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #E0F7FA;
+        }
+        p {
+            margin: 5px 0;
+            text-align: justify;
+        }
+        .highlight {
+            color: #34837C;
+            font-weight: bold;
+        }
+        .cta {
+            background-color: #34837C;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 15px auto;
+        }
+        .cta:hover {
+            background-color: #34837C;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://www.boreal.cl/wp-content/uploads/2024/01/Logo-Boreal-Blanco.png"/>
+    </header>
+    <main>
+        <p>Buen día,</p>
+        <p>Estimad@ <span class="highlight">{{customer.personalInformation.name}}</span></p>
+        <h4>Tu avance de pagos en Green Concept Av. España al <span class="highlight">31/07/2024</span></h4>
+
+        <h3>Datos de Compra</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Fecha Promesa</th>
+                    <td>{{datosDeCompra.fechaPromesa}}</td> 
+                </tr>
+                <tr>
+                    <th>N° Departamento</th>
+                    <td>{{datosDeCompra.depto.nroDepto}}</td>
+                </tr>
+                <tr>
+                    <th>N° Estacionamiento</th>
+                    <td>{{datosDeCompra.estacionamiento.nroEstacionamiento}}</td>
+                </tr>
+                <tr>
+                    <th>N° Bodega</th>
+                    <td>{{datosDeCompra.bodega.nroBodega}}</td>
+                </tr>
+                <tr>
+                    <th>Monto de la Compra en UF</th>
+                    <td>{{datosDeCompra.montoCompra}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Forma de Pago Definida</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Plan de Pago</th>
+                    <th>{{formaDePago.divisa}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Contra Promesa</td>
+                    <td>{{formaDePago.contraPromesa}}</td>
+                </tr>
+                <tr>
+                    <td>Pie en Cuotas</td>
+                    <td>{{formaDePago.pieEnCuotas}}</td>
+                </tr>
+                <tr>
+                    <td>Cuotón</td>
+                    <td>{{formaDePago.cuoton}}</td>
+                </tr>
+                <tr>
+                    <td>Cuotas Post Entrega</td>
+                    <td>{{formaDePago.cuotasPostEntrega}}</td>
+                </tr>
+                <tr>
+                    <td>Aporte Boreal</td>
+                    <td>{{formaDePago.aporteBoreal}}</td>
+                </tr>
+                <tr>
+                    <td>Promoción</td>
+                    <td>{{formaDePago.promocion}}</td>
+                </tr>
+                <tr>
+                    <td>Crédito Hipotecario</td>
+                    <td>{{formaDePago.creditoHipotecario}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Avances de Pagos a la Fecha</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Pagos Pre-Entrega</th>
+                    <th>UF</th>
+                    <th>Pesos</th>
+                    <th>UF</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Contra Promesa</td>
+                    <td>22</td>
+                    <td>810,105</td>
+                    <td>22</td>
+                    <td>100%</td>
+                </tr>
+                <tr>
+                    <td>Pie en Cuotas</td>
+                    <td>294</td>
+                    <td>2,712,827</td>
+                    <td>74</td>
+                    <td>25%</td>
+                </tr>
+                <tr>
+                    <td>Cuotón</td>
+                    <td>146</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>0%</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total pagos Pre-entrega</td>
+                    <td>462</td>
+                    <td>3,522,932</td>
+                    <td>96</td>
+                    <td>21%</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Tu Inversión Rinde Frutos Hoy</h3>
+        <table>
+            <tbody>
+                <tr>
+                    <th>Tus pagos ahora valen</th>
+                    <td>3,607,279 Pesos</td>
+                </tr>
+                <tr>
+                    <th>Has ganado, por diferencia en UF</th>
+                    <td>84,347 Pesos</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>En Boreal te ayudamos a seguir mejorando tu inversión.</p>
+        <p>Por cuotas extra desde <span class="highlight">1.000.000 pesos</span>, Boreal te descuenta <span class="highlight">200.000 pesos</span> en el valor final*.</p>
+        <h4>Si lo pactas hoy:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>22 Cuotas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Estacionamiento</td>
+                    <td>169,116</td>
+                </tr>
+                <tr>
+                    <td>Bodega</td>
+                    <td>29,973</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>*Tope aporte Boreal: 3.000.000 pesos.</p>
+        <p>**Valor Referencial del mes.</p>
+        
+    </main>
+
+</body>
+</html>
