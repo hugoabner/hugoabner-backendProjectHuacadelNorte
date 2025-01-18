@@ -8,39 +8,39 @@ export const signIn = async (req, res) => {
 	try {
 		const userFound =  await User.findOne({
 			email: req.body.email
-		}).populate("roles");
+		})
 		if (!userFound){
-			return res.status(400).json({
-			message: "El usuario no existe"});
+			throw new Error("El correo electronico no existe");
 		}
 		const matchPassword = await User.comparePassword(
 			req.body.password, userFound.password
 		);
+		console.log(matchPassword);
 		if (!matchPassword){
-			return res.status(401).json({
-			token: null, 
-			message: "La contraseña es incorrecta"});
+			throw new Error("La contraseña es incorrecta");
 		}
-		const rolesAsString = Array.isArray(userFound.roles)
-		? userFound.roles.map((role) => role.name).join(', ')
-		: userFound.roles.name;
 		const token = JWT.sign({id: userFound._id}, 
 		process.env.JWT_SECRET_KEY, {
 		expiresIn: 86400 // el token expirara 24 horas
 		})
 		res.json({
+			status: 'success',
+			statusCode: 200,
 			message: 'Su sesión se ha iniciado correctamente',
-			user: {
-			id: userFound._id,
-			username: userFound.username,
-			email: userFound.email,
-			roles: 	rolesAsString,
-			imgURL: userFound.imgURL
-		},
-		token,
+			user:{
+				username: userFound.username,
+				email: userFound.email,
+				roles: userFound.role
+			},
+			token,
 		});
 	} catch (error) {
 		console.log("Ocurrio un error al iniciar sesion " + error);
+		res.status(500).json({
+			success: false,
+			statusCode: 500,
+			message: error.message
+		});
 	}
 }
 
@@ -63,24 +63,25 @@ export const getProfile = async (req, res) => {
 
 /**@funcion para registrar un nuevo usuario*/
 export const signUp = async (req, res) => {
-	try {
-		const { username, email, password, roles, imgURL } = req.body;
+	try {		
+		const { username, email, password, role, imgURL } = req.body.user;
 		const newUser = new User({
-		username, email,
-		password: await User.encryptPassword(password),
-		imgURL,
+			username, 
+			email,
+			role,
+			password: await User.encryptPassword(password),
+			imgURL,
 		});
-		if (roles && roles.length > 0) {
-		const roleNames = roles.map((role) => (
-			typeof role === "string" ? role : role.name
-		));
+		if (role) {
 		const foundRoles = await Role.find({
-			name: { $in: roleNames } 
+			name: { $in: role }, 
 		});
-		newUser.roles = foundRoles.map((role) => role._id);
+		newUser.role = {
+			_id: foundRoles[0]._id,
+			name: foundRoles[0].name
+		};
 		} else {
-			const roleDefault = await Role.findOne({ name: "user" });
-			newUser.roles = [roleDefault._id];
+			throw new Error("El rol es requerido");
 		}
 		const savedUser = await newUser.save();
 		const token = JWT.sign({ id: savedUser._id }, process.env.JWT_SECRET_KEY, {
@@ -91,7 +92,6 @@ export const signUp = async (req, res) => {
 	} catch (error) {
 		console.error(error);	
 	}
-	
 };
   
 /**@funcion para obtener a todos los usuarios registrados */

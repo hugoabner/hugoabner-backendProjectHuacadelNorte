@@ -6,6 +6,11 @@ import { checkDuplicateUserNameOrEmail } from "../middlewares/index";
 
 const router = Router()
 
-router.post('/', [authJwtVerified, isAdmin, checkRolesExisted,checkDuplicateUserNameOrEmail ], createUser )
+router.post('/', 
+	[authJwtVerified, 
+		isAdmin, 
+		checkRolesExisted, 
+		checkDuplicateUserNameOrEmail ], 
+	createUser )
 
 export default router;

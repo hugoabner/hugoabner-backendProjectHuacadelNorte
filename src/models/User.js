@@ -2,12 +2,19 @@ import {Schema, model} from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new Schema({
-    username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String },
-    roles: [{ ref: "Role", type: Schema.Types.ObjectId }],
-    imgURL: { type: String},
-}, { timestamps: true, versionKey: false });
+    username:   { type: String, required: true },
+    email:      { type: String, required: true, unique: true },
+    password:   { type: String, required: true },
+    role: {
+        type: {
+            _id: { type: Schema.Types.ObjectId, ref: 'Role' },
+            name: { type: String }
+        }, required: true
+    },
+    imgURL:     { type: String},
+}, {timestamps: true, 
+    versionKey: false 
+});
 
 
 /**@funcion para cifrar la contraseña*/
