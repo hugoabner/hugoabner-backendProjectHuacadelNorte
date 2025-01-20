@@ -17,15 +17,15 @@ const router = Router()
 router.post('/signIn',  
 	signIn);
 
-/**@Route para obtener el perfil */
-router.get('/profile', 
-	requireAuth,  
-	getProfile)
-
 /**@Route para registrar un usuario */
 router.post('/signUp', 
 	[authJwtVerified, isAdmin], 
 	signUp );
+
+/**@Route para obtener el perfil */
+router.get('/profile', 
+	requireAuth,  
+	getProfile)
 
 /**@Route para usuarios registrados */
 router.get('/userRegisters', 

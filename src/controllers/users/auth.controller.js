@@ -68,7 +68,7 @@ export const signUp = async (req, res) => {
 		const newUser = new User({
 			username, 
 			email,
-			role,
+			role, 
 			password: await User.encryptPassword(password),
 			imgURL,
 		});
@@ -84,13 +84,14 @@ export const signUp = async (req, res) => {
 			throw new Error("El rol es requerido");
 		}
 		const savedUser = await newUser.save();
-		const token = JWT.sign({ id: savedUser._id }, process.env.JWT_SECRET_KEY, {
-			expiresIn: 86400, // 24 horas
-		});
 		res.status(200).json({ user: savedUser });
-		console.log(savedUser);
 	} catch (error) {
-		console.error(error);	
+		console.error("Ocurrio un error al registrar el usuario " + error);
+		res.status(500).json({
+			success: false,
+			statusCode: 500,
+			message: error.message
+		})	
 	}
 };
   
